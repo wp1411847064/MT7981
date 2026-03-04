@@ -1345,6 +1345,22 @@ define Device/mediatek_mt7981-rfb
 endef
 TARGET_DEVICES += mediatek_mt7981-rfb
 
+define Device/myboard_my-mt7981
+  DEVICE_VENDOR := MyBoard
+  DEVICE_MODEL := my-mt7981
+  DEVICE_DTS := mt7981b-my-mt7981
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS_LOADADDR := 0x47000000
+  DEVICE_PACKAGES := kmod-usb3 e2fsprogs f2fsck mkf2fs
+  IMAGES := sysupgrade.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  ARTIFACTS := emmc-gpt.bin emmc-preloader.bin emmc-bl31-uboot.fip
+  ARTIFACT/emmc-gpt.bin        := mt798x-gpt emmc
+  ARTIFACT/emmc-preloader.bin  := mt7981-bl2 emmc-ddr3
+  ARTIFACT/emmc-bl31-uboot.fip := mt7981-bl31-uboot my-mt7981
+endef
+TARGET_DEVICES += myboard_my-mt7981
+
 define Device/mediatek_mt7986a-rfb-nand
   DEVICE_VENDOR := MediaTek
   DEVICE_MODEL := MT7986 rfba AP (NAND)

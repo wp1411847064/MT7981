@@ -411,6 +411,18 @@ define U-Boot/mt7981_rfb-emmc
   DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr3
 endef
 
+define U-Boot/mt7981_my-mt7981
+  NAME:=MyBoard my-mt7981
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=myboard_my-mt7981
+  UBOOT_CONFIG:=mt7981_emmc_rfb
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr3
+endef
+
 define U-Boot/mt7981_gatonetworks_gdsp
   NAME:=GatoNetworks GDSP
   BUILD_SUBTARGET:=filogic
@@ -893,6 +905,7 @@ UBOOT_TARGETS := \
 	mt7981_nokia_ea0326gmp \
 	mt7981_openwrt_one-snand \
 	mt7981_openwrt_one-nor \
+	mt7981_my-mt7981 \
 	mt7981_rfb-spim-nand \
 	mt7981_rfb-emmc \
 	mt7981_rfb-nor \

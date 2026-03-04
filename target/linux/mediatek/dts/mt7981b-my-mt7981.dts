@@ -1,0 +1,283 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/dts-v1/;
+#include "mt7981.dtsi"
+
+/ {
+	model = "MyBoard MT7981";
+	compatible = "myboard,my-mt7981", "mediatek,mt7981";
+
+	aliases {
+		label-mac-device = &gmac1;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+		bootargs-append = " root=PARTLABEL=rootfs rootwait";
+	};
+
+	reg_3p3v: regulator-3p3v {
+		compatible = "regulator-fixed";
+		regulator-name = "fixed-3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led-system-red {
+			label = "red:system";
+			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+
+		led-system-green {
+			label = "green:system";
+			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-wan-gbe {
+			label = "green:wan";
+			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-system-yellow {
+			label = "yellow:system";
+			gpios = <&pca9554 0 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-network-red {
+			label = "red:network";
+			gpios = <&pca9554 1 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-network-green {
+			label = "green:network";
+			gpios = <&pca9554 2 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-network-yellow {
+			label = "yellow:network";
+			gpios = <&pca9554 3 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-signal-red {
+			label = "red:signal";
+			gpios = <&pca9554 4 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-signal-green {
+			label = "green:signal";
+			gpios = <&pca9554 5 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+
+		led-signal-yellow {
+			label = "yellow:signal";
+			gpios = <&pca9554 6 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&watchdog {
+	status = "okay";
+};
+
+&pio {
+	mmc0_pins_default: mmc0-pins-default {
+		mux {
+			function = "flash";
+			groups = "emmc_45";
+		};
+	};
+
+	mmc0_pins_uhs: mmc0-pins-uhs {
+		mux {
+			function = "flash";
+			groups = "emmc_45";
+		};
+	};
+
+	i2c_pins: i2c-pins {
+		mux {
+			function = "i2c";
+			groups = "i2c0_1";
+		};
+	};
+};
+
+&mmc0 {
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc0_pins_default>;
+	pinctrl-1 = <&mmc0_pins_uhs>;
+	bus-width = <8>;
+	max-frequency = <52000000>;
+	cap-mmc-highspeed;
+	vmmc-supply = <&reg_3p3v>;
+	non-removable;
+	status = "okay";
+
+	card@0 {
+		compatible = "mmc-card";
+		reg = <0>;
+
+		block {
+			compatible = "block-device";
+
+			partitions {
+				block-partition-factory {
+					partname = "factory";
+
+					nvmem-layout {
+						compatible = "fixed-layout";
+						#address-cells = <1>;
+						#size-cells = <1>;
+
+						macaddr_factory_4: macaddr@4 {
+							compatible = "mac-base";
+							reg = <0x4 0x6>;
+							#nvmem-cell-cells = <1>;
+						};
+					};
+				};
+			};
+		};
+	};
+};
+
+&eth {
+	status = "okay";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdio_pins>;
+
+	gmac0: mac@0 {
+		compatible = "mediatek,eth-mac";
+		reg = <0>;
+		phy-mode = "2500base-x";
+		nvmem-cells = <&macaddr_factory_4 0>;
+		nvmem-cell-names = "mac-address";
+
+		fixed-link {
+			speed = <2500>;
+			full-duplex;
+			pause;
+		};
+	};
+
+	gmac1: mac@1 {
+		compatible = "mediatek,eth-mac";
+		reg = <1>;
+		phy-mode = "gmii";
+		phy-handle = <&int_gbe_phy>;
+		nvmem-cells = <&macaddr_factory_4 1>;
+		nvmem-cell-names = "mac-address";
+	};
+};
+
+&mdio_bus {
+	switch: switch@1f {
+		compatible = "mediatek,mt7531";
+		reg = <31>;
+		reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+		interrupt-parent = <&pio>;
+		interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+	};
+};
+
+&switch {
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			label = "lan1";
+		};
+
+		port@1 {
+			reg = <1>;
+			label = "lan2";
+		};
+
+		port@2 {
+			reg = <2>;
+			label = "lan3";
+		};
+
+		port@3 {
+			reg = <3>;
+			label = "lan4";
+		};
+
+		port@6 {
+			reg = <6>;
+			label = "cpu";
+			ethernet = <&gmac0>;
+			phy-mode = "2500base-x";
+
+			fixed-link {
+				speed = <2500>;
+				full-duplex;
+				pause;
+			};
+		};
+	};
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c_pins>;
+	status = "okay";
+
+	pca9554: gpio@20 {
+		compatible = "nxp,pca9554";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	rtc@51 {
+		compatible = "nxp,pcf85263";
+		reg = <0x51>;
+	};
+};
+
+&usb_phy {
+	status = "okay";
+};
+
+&xhci {
+	mediatek,u3p-dis-msk = <0x0>;
+	phys = <&u2port0 PHY_TYPE_USB2>,
+	       <&u3port0 PHY_TYPE_USB3>;
+	status = "okay";
+};
