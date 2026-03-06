@@ -12,9 +12,10 @@
 		serial0 = &uart0;
 	};
 
-	chosen {
+	chosen: chosen {
 		stdout-path = "serial0:115200n8";
-		bootargs-append = " root=PARTLABEL=rootfs rootwait";
+		bootargs-append = " root=/dev/fit0 rootwait";
+		rootdisk-emmc = <&emmc_rootdisk>;
 	};
 
 	reg_3p3v: regulator-3p3v {
@@ -165,6 +166,10 @@
 							#nvmem-cell-cells = <1>;
 						};
 					};
+				};
+
+				emmc_rootdisk: block-partition-production {
+					partname = "production";
 				};
 			};
 		};

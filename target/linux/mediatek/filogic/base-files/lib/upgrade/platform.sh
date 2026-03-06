@@ -81,6 +81,7 @@ platform_do_upgrade() {
 	konka,komi-a31|\
 	mediatek,mt7981-rfb|\
 	mediatek,mt7988a-rfb|\
+	myboard,my-mt7981|\
 	mercusys,mr90x-v1-ubi|\
 	netis,nx31|\
 	nokia,ea0326gmp|\
