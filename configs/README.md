@@ -51,6 +51,12 @@ make
 ./build.sh configs/devices/mediatek_filogic_myboard_my-mt7981.seed -- V=s
 ```
 
+如果只是传普通 make 参数，也可以不写 `--`：
+
+```sh
+./build.sh V=s
+```
+
 只重编 BusyBox 并重新生成最终固件：
 
 ```sh

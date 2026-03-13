@@ -17,6 +17,7 @@ PACKAGE_TARGETS=""
 EXTRA_TARGETS=""
 MAKE_ARGS=""
 JOBS=""
+SEED_EXPLICIT=0
 
 usage() {
 	cat <<'EOF'
@@ -266,7 +267,12 @@ while [ "$#" -gt 0 ]; do
 			exit 1
 			;;
 		*)
-			SEED_PATH="$1"
+			if [ "$SEED_EXPLICIT" -eq 0 ] && [ -f "$TOPDIR/$1" ]; then
+				SEED_PATH="$1"
+				SEED_EXPLICIT=1
+			else
+				MAKE_ARGS=$(append_word "$1" "$MAKE_ARGS")
+			fi
 			shift
 			;;
 	esac
